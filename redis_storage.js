@@ -163,7 +163,7 @@ module.exports = function(config) {
 			var cardObject = res;
 			for (var fieldIndex = 0; fieldIndex < cardDataFields.length; fieldIndex++) {
 			    var field = cardDataFields[fieldIndex];
-			    if (cardOject.hasOwnProperty(field.name)) {
+			    if (cardObject.hasOwnProperty(field.name)) {
 				if (null !== cardObject[field.name]) {
 				    // validate data conforms to expectations
 				    if (field.type == 'boolean') {

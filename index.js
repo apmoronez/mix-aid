@@ -1,7 +1,7 @@
 require('dotenv').config();
-var Redis_Storage = require('./redis_storage.js');
-var Fs = require('fs');
-var CSVParse = require('csv-parse');
+const Redis_Storage = require('./redis_storage.js');
+const Fs = require('fs');
+const CSVParse = require('csv-parse');
 
 // make sure all env vars are set
 if (!process.env.REDIS_URL 
@@ -13,7 +13,7 @@ if (!process.env.REDIS_URL
 var redis = new Redis_Storage({url: process.env.REDIS_URL})();
 
 var input = Fs.createReadStream(__dirname + '/cardlist.csv');
-var parser = CSVParse({columns: true}, function(err, output) {
+var parser = new CSVParse({columns: true}, function(err, output) {
     if (err) {
 	console.log('Error parsing file: ' + err);
     }
@@ -75,6 +75,7 @@ var parser = CSVParse({columns: true}, function(err, output) {
 	}
     }
 });
+
 /*
 input.pipe(parser);
 console.log('loaded data');
