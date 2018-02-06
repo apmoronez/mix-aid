@@ -142,6 +142,18 @@ module.exports = function(config) {
 	    indexed: false,
 	    notes: 'URL to the artwork for this card',
 	},
+	{
+	    name: 'artHash',
+	    type: 'string',
+	    indexed: false,
+	    notes: 'hash for accessing artwork for this card',
+	},
+	{
+	    name: 'cardHash',
+	    type: 'string',
+	    indexed: false,
+	    notes: 'unique card hash',
+	},
     ];
 
     var storage = function() {

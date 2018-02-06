@@ -27,6 +27,8 @@ var loadparser = new CSVParse({columns: true}, function(err, output) {
 	    card.artist = output[i].Artist;
 	    card.song = output[i].Title;
 	    card.playlist = output[i].Playlist;
+	    card.artHash = output[i].ArtHash;
+	    card.cardHash = output[i].CardHash;
 	    if (output[i].Color == 'Wild') {
 		var instruments = output[i].Instrument.split('|');
 		if (instruments.length != 4) {
