@@ -2,6 +2,8 @@ require('dotenv').config();
 const Redis_Storage = require('./redis_storage.js');
 const Fs = require('fs');
 const CSVParse = require('csv-parse');
+const Express = require('express');
+const App = Express();
 
 // make sure all env vars are set
 if (!process.env.REDIS_URL 
@@ -12,8 +14,7 @@ if (!process.env.REDIS_URL
 // connect to Redis
 var redis = new Redis_Storage({url: process.env.REDIS_URL})();
 
-var input = Fs.createReadStream(__dirname + '/cardlist.csv');
-var parser = new CSVParse({columns: true}, function(err, output) {
+var loadparser = new CSVParse({columns: true}, function(err, output) {
     if (err) {
 	console.log('Error parsing file: ' + err);
     }
@@ -76,11 +77,30 @@ var parser = new CSVParse({columns: true}, function(err, output) {
     }
 });
 
+var deleteparser = new CSVParse({columns: true}, function(err, output) {
+    if (err) {
+	console.log('Error parsing file: ' + err);
+    }
+    else {
+	for (var i=0; i < output.length; i++) {
+	    var card = {};
+	    card.id = output[i].Season + '-' + output[i].CardNo;
+	    redis.deleteCard(card, function(err, res) {
+		if (err) {
+		    console.log("error deleting card, line " + i + ": " + err);
+		}
+	    });
+	}
+    }
+});
+
 /*
+var input = Fs.createReadStream(__dirname + '/cardlist.csv');
 input.pipe(parser);
 console.log('loaded data');
 */
 
+/*
 redis.getAllMatchingCardsBySetPairwiseMultipleOR([
     {
 	key: 'yellowInstrument',
@@ -107,4 +127,67 @@ redis.getAllMatchingCardsBySetPairwiseMultipleOR([
 	console.dir(res);
     }
 });
+*/
+App.get('/load-data', function(req, res) {
+    var input = Fs.createReadStream(__dirname + '/cardlist.csv');
+    input.pipe(loadparser);
+    res.send('loaded data');
+});
 
+App.get('/delete-data', function(req, res) {
+    var input = Fs.createReadStream(__dirname + '/cardlist.csv');
+    input.pipe(deleteparser);
+    res.send('deleted data');
+});
+
+App.get('/', function(req, res) {
+    var query = req.query;
+    var keys = Object.keys(query);
+    if (!keys.length) {
+	var output = "Valid fields<br>";
+	var dataFields = redis.getDataFields();
+	for (var i=0; i < dataFields.length; i++) {
+	    if (dataFields[i].indexed) {
+		output = output + dataFields[i].name + ": " + dataFields[i].type + "<br>";
+	    }
+	}
+	output += "connective: [AND|OR] (defaults to AND)<br>";
+	output += "<br><br>Example queries:<br>\
+<a href='/?playlist=Mirrors'>/?playlist=Mirrors</a><br>\
+<a href='/?isGreen=true&level=2'>/?isGreen=true&level=2</a><br>\
+<a href='/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR'>/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR</a><br>";
+	return res.send(output);
+    }
+    var searchParams = [];
+    for (var i=0; i < keys.length; i++) {
+	searchParams.push({
+	    key: keys[i],
+	    value: query[keys[i]],
+	});
+    }
+    
+    if (query.connective == 'OR') {
+	redis.getAllMatchingCardsBySetPairwiseMultipleOR(searchParams, function(err, data) {
+	    if (err) {
+		console.log("Error getting card: " + err);
+		res.status(500).send("Error getting card data!");
+	    }
+	    else {
+		res.json(data);
+	    }
+	});
+    }
+    else {
+	redis.getAllMatchingCardsBySetPairwiseMultipleAND(searchParams, function(err, data) {
+	    if (err) {
+		console.log("Error getting card: " + err);
+		res.status(500).send("Error getting card data!");
+	    }
+	    else {
+		res.json(data);
+	    }
+	});
+    }
+});
+
+App.listen(process.env.PORT, ()=>console.log('Gomez mix-aid running on port '+process.env.PORT));

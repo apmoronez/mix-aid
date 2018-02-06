@@ -147,6 +147,9 @@ module.exports = function(config) {
     var storage = function() {
 	    
         return {
+	    getDataFields: function() {
+		return cardDataFields;
+	    },
 	    // makeCardKey: helper function to generate Redis keys for getting your data
 	    makeCardKey: function(type, key) {
 		return config.namespace + ':' + type + ':' + key;
@@ -161,26 +164,28 @@ module.exports = function(config) {
 		    else {
 			// TODO: post-process data to transform booleans to true/false (they are stored in DB as 1/0)
 			var cardObject = res;
-			for (var fieldIndex = 0; fieldIndex < cardDataFields.length; fieldIndex++) {
-			    var field = cardDataFields[fieldIndex];
-			    if (cardObject.hasOwnProperty(field.name)) {
-				if (null !== cardObject[field.name]) {
-				    // validate data conforms to expectations
-				    if (field.type == 'boolean') {
-					// standardize to true or false
-					if (cardObject[field.name]) {
-					    cardObject[field.name] = true;
+			if (null != cardObject) {
+			    for (var fieldIndex = 0; fieldIndex < cardDataFields.length; fieldIndex++) {
+				var field = cardDataFields[fieldIndex];
+				if (cardObject.hasOwnProperty(field.name)) {
+				    if (null !== cardObject[field.name]) {
+					// validate data conforms to expectations
+					if (field.type == 'boolean') {
+					    // standardize to true or false
+					    if (cardObject[field.name]) {
+						cardObject[field.name] = true;
+					    }
+					    else {
+						cardObject[field.name] = false;
+					    }
 					}
-					else {
-					    cardObject[field.name] = false;
-					}
-				    }
-				    else if (field.type == 'integer') {
-					if (isNaN(cardObject[field.name])) {
-					    // bad data, but just spit it out, do nothing here
-					}
-					else {
-					    cardObject[field.name] = parseInt(cardObject[field.name], 10);
+					else if (field.type == 'integer') {
+					    if (isNaN(cardObject[field.name])) {
+						// bad data, but just spit it out, do nothing here
+					    }
+					    else {
+						cardObject[field.name] = parseInt(cardObject[field.name], 10);
+					    }
 					}
 				    }
 				}
