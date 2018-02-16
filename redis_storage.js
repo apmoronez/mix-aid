@@ -174,7 +174,6 @@ module.exports = function(config) {
 			return cb(new Error(err), {});
 		    }
 		    else {
-			// TODO: post-process data to transform booleans to true/false (they are stored in DB as 1/0)
 			var cardObject = res;
 			if (null != cardObject) {
 			    for (var fieldIndex = 0; fieldIndex < cardDataFields.length; fieldIndex++) {
@@ -245,7 +244,7 @@ module.exports = function(config) {
 					}
 					// validate data conforms to expectations
 					else if (field.type == 'boolean') {
-					    // standardize to 1 or 0
+					    // standardize to true or false
 					    if (cardObject[field.name]) {
 						cardObject[field.name] = true;
 					    }
