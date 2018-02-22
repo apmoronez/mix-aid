@@ -315,7 +315,14 @@ var getCardImageHTML = function(data) {
 	    cardColor = "white";
 	    instrument1 = "<div style='position: absolute; width: 120px; bottom: 15px; left: 15px; z-index: 101; font-family: song; font-size: 8px; color: white'>" + data[i].FXRuleText + "</div>";
 	}
-	var img = "<div style='position: relative; height: 260px; width: 187px; border-radius: 10px; float: left'><div style='position: absolute; top: 13px; left: 12px'><img src=https://sad.hasbro.com/dmx/art/" + data[i].artHash + ".jpg height=175 width=165 alt=\"" + altText + "\" title=\"" + altText + "\" /></div><div style='position: absolute; top: 0px; left: 0px; height: 260px; width: 187px; background-image: url(\"./static/bg_" + cardColor + cardLevel + ".png\"); background-size:contain; z-index:100'></div><div style='position: absolute; bottom: 15px; right: 15px; z-index: 101'><img src=static/logo_" + data[i].playlist + ".png height=20 width=20></div><div style='position: absolute; top: 190px; left: 15px; z-index: 101; color: white; font-size: 10px; text-transform: uppercase; font-family: artist;'>" + data[i].artist + "</div><div style='position: absolute; top: 200px; left: 15px; z-index: 101; color: white; font-size: 8px; text-transform: uppercase; font-family: song;'>" + data[i].song + "</div><div style='position: absolute; bottom: 5px; right: 15px; z-index: 101; color: white; font-family: song; font-size: 8px;'>" + data[i].id + "</div> " + instrument1 + instrument2 + instrument3 + instrument4 + "</div>";
+	var img = "<div style='position: relative; height: 260px; width: 187px; border-radius: 10px; float: left'>\
+<div style='position: absolute; top: 13px; left: 12px'>\
+<img src=https://sad.hasbro.com/dmx/art/" + data[i].artHash + ".jpg height=175 width=165 alt=\"" + altText + "\" title=\"" + altText + "\" /></div>\
+<div style='position: absolute; top: 0px; left: 0px; height: 260px; width: 187px; background-image: url(\"./static/bg_" + cardColor + cardLevel + ".png\"); background-size:contain; z-index:100'></div><div style='position: absolute; bottom: 15px; right: 15px; z-index: 101'>\
+<img src=static/logo_" + data[i].playlist + ".png height=20 width=20></div>\
+<div style='font-family: artist; letter-spacing: 0.08em; position: absolute; top: 190px; left: 15px; z-index: 101; color: white; font-size: 7pt; text-transform: uppercase;'>" + data[i].artist + "</div>\
+<div style='font-family: song; letter-spacing: 0.1em; position: absolute; top: 201px; left: 15px; z-index: 101; color: white; font-size: 7pt; text-transform: uppercase;'>" + data[i].song + "</div>\
+<div style='font-family: song; position: absolute; bottom: 5px; right: 15px; z-index: 101; color: white; font-size: 7pt;'>" + data[i].id + "</div> " + instrument1 + instrument2 + instrument3 + instrument4 + "</div>";
 	//var img = "<img src=https://sad.hasbro.com/1200e194df42fdb4868a9811c626c142ad91b760/" + data[i].cardHash + ".png height=260 width=190 alt=\"" + data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")\" />";
 	outputHTML += img;
     }
