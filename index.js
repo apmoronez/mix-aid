@@ -223,6 +223,7 @@ var getUI = function(req) {
     output += "<form method=GET>Find cards that match <select name=connective>";
     var andSelected = "";
     var orSelected = "";
+    var artOnlyChecked = "";
     if (req && req.query && req.query.connective) {
 	if (req.query.connective == 'AND') {
 	    andSelected = "selected";
@@ -230,6 +231,9 @@ var getUI = function(req) {
 	if (req.query.connective == 'OR') {
 	    orSelected = "selected";
 	}
+    }
+    if (req && req.query && req.query.artonly) {
+	artOnlyChecked = "checked";
     }
 
     output += "<option value=AND " + andSelected + ">ALL</option><option value=OR " + orSelected + ">ANY</option>";
@@ -270,7 +274,7 @@ var getUI = function(req) {
 	output += "</tr></table></td>";
     }
     output += "</tr></table>";
-    output += "<br/><input type=submit value=Go /><input type=checkbox name=jsononly value=true />JSON response only</form>";
+    output += "<br/><input type=submit value=Go /><input type=checkbox name=jsononly value=true />JSON response only<input type=checkbox name=artonly value=true " + artOnlyChecked + " />Art images only (instead of full card)</form>";
     output += "<br/><br/>Example queries:<br/>\
 <a href='/?playlist=Mirrors'>/?playlist=Mirrors</a><br/>\
 <a href='/?isGreen=true&level=2'>/?isGreen=true&level=2</a><br/>\
@@ -278,7 +282,7 @@ var getUI = function(req) {
     return output;
 };
 
-var getCardImageHTML = function(data) {
+var getCardImageHTML = function(data, query) {
     var outputHTML = "";
     for (var i=0; i < data.length; i++) {
 	var altText = data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")";
@@ -315,7 +319,12 @@ var getCardImageHTML = function(data) {
 	    cardColor = "white";
 	    instrument1 = "<div style='position: absolute; width: 120px; bottom: 15px; left: 15px; z-index: 101; font-family: song; font-size: 8px; color: white'>" + data[i].FXRuleText + "</div>";
 	}
-	var img = "<div style='position: relative; height: 260px; width: 187px; border-radius: 10px; float: left'>\
+	var img = "";
+	if (query.artonly) {
+	    img = "<img src=https://sad.hasbro.com/dmx/art/" + data[i].artHash + ".jpg height=150 width=150 alt=\"" + data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")\" />";
+	}
+	else {
+	    img = "<div style='position: relative; height: 260px; width: 187px; border-radius: 10px; float: left'>\
 <div style='position: absolute; top: 13px; left: 12px'>\
 <img src=https://sad.hasbro.com/dmx/art/" + data[i].artHash + ".jpg height=175 width=165 alt=\"" + altText + "\" title=\"" + altText + "\" /></div>\
 <div style='position: absolute; top: 0px; left: 0px; height: 260px; width: 187px; background-image: url(\"./static/bg_" + cardColor + cardLevel + ".png\"); background-size:contain; z-index:100'></div><div style='position: absolute; bottom: 15px; right: 15px; z-index: 101'>\
@@ -323,7 +332,7 @@ var getCardImageHTML = function(data) {
 <div style='font-family: artist; letter-spacing: 0.08em; position: absolute; top: 190px; left: 15px; z-index: 101; color: white; font-size: 7pt; text-transform: uppercase;'>" + data[i].artist + "</div>\
 <div style='font-family: song; letter-spacing: 0.1em; position: absolute; top: 201px; left: 15px; z-index: 101; color: white; font-size: 7pt; text-transform: uppercase;'>" + data[i].song + "</div>\
 <div style='font-family: song; position: absolute; bottom: 5px; right: 15px; z-index: 101; color: white; font-size: 7pt;'>" + data[i].id + "</div> " + instrument1 + instrument2 + instrument3 + instrument4 + "</div>";
-	//var img = "<img src=https://sad.hasbro.com/1200e194df42fdb4868a9811c626c142ad91b760/" + data[i].cardHash + ".png height=260 width=190 alt=\"" + data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")\" />";
+	}
 	outputHTML += img;
     }
     return outputHTML;
@@ -355,7 +364,7 @@ App.get('/', function(req, res) {
     }
     var searchParams = [];
     for (var i=0; i < keys.length; i++) {
-	if (keys[i] == 'connective') {
+	if (keys[i] == 'connective' || keys[i] == 'artonly' || keys[i] == 'jsononly') {
 	    continue;
 	}
 	var values = query[keys[i]];
@@ -386,7 +395,7 @@ App.get('/', function(req, res) {
 		    res.json(data);
 		}
 		else {
-		    var output = getCardImageHTML(data);
+		    var output = getCardImageHTML(data, query);
 		    res.send(getUI(req) + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre><br/>" + output + "</body>");
 		}
 	    }
@@ -404,7 +413,7 @@ App.get('/', function(req, res) {
 		    res.json(data);
 		}
 		else {
-		    var output = getCardImageHTML(data);
+		    var output = getCardImageHTML(data, query);
 		    res.send(getUI(req) + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre><br/>" + output + "</body>");
 		}
 	    }
