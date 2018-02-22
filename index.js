@@ -153,7 +153,7 @@ var getUI = function(req) {
 		isGreen: [
                     { label: 'Green', value: 'true'},
 		],
-		isWild: [
+		isMulti: [
                     { label: 'Wild', value: 'true'},
 		],
 		isFX: [
@@ -208,8 +208,17 @@ var getUI = function(req) {
 	    },
 	],
     };
-	
-    var output = "<h1>Gomez Mix-Aid</h1><br/>";
+    var css = "<style>\
+@font-face {\
+    font-family: artist;\
+    src: url(./static/AEH.ttf) format(\"truetype\");\
+}\
+@font-face {\
+    font-family: song;\
+    src: url(./static/AvenirLTStd-Light.otf) format(\"opentype\");\
+}\
+</style>";
+    var output = "<head>" + css + "</head><body><h1>Gomez Mix-Aid</h1><br/>";
 
     output += "<form method=GET>Find cards that match <select name=connective>";
     var andSelected = "";
@@ -265,14 +274,49 @@ var getUI = function(req) {
     output += "<br/><br/>Example queries:<br/>\
 <a href='/?playlist=Mirrors'>/?playlist=Mirrors</a><br/>\
 <a href='/?isGreen=true&level=2'>/?isGreen=true&level=2</a><br/>\
-<a href='/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR'>/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR</a><br/>";
+<a href='/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR'>/?greenInstrument=Horns&yellowInstrument=Horns&redInstrument=Horns&connective=OR</a><br/>All Cards &trade; &amp; &copy; 2017 HARMONIX &copy; 2017 HASBRO<br/>";
     return output;
 };
 
 var getCardImageHTML = function(data) {
     var outputHTML = "";
     for (var i=0; i < data.length; i++) {
-	var img = "<img src=https://sad.hasbro.com/1200e194df42fdb4868a9811c626c142ad91b760/" + data[i].cardHash + ".png height=260 width=190 alt=\"" + data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")\" />";
+	var altText = data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")";
+	var cardColor = "";
+	var cardLevel = data[i].level;
+	var instrument1 = "";
+	var instrument2 = "";
+	var instrument3 = "";
+	var instrument4 = "";
+	if (data[i].isMulti) {
+	    cardColor = "wild";
+	    instrument1 = "<div style='position: absolute; bottom: 15px; left: 15px; z-index: 101'><img src=static/instrument_yellow" + data[i].yellowInstrument + ".png height=20 width=20></div>";
+	    instrument2 = "<div style='position: absolute; bottom: 15px; left: 35px; z-index: 101'><img src=static/instrument_red" + data[i].redInstrument + ".png height=20 width=20></div>";
+	    instrument3 = "<div style='position: absolute; bottom: 15px; left: 55px; z-index: 101'><img src=static/instrument_blue" + data[i].blueInstrument + ".png height=20 width=20></div>";
+	    instrument4 = "<div style='position: absolute; bottom: 15px; left: 75px; z-index: 101'><img src=static/instrument_green" + data[i].greenInstrument + ".png height=20 width=20></div>";
+	}
+	else if (data[i].isYellow) {
+	    cardColor = "yellow";
+	    instrument1 = "<div style='position: absolute; bottom: 15px; left: 15px; z-index: 101'><img src=static/instrument_yellow" + data[i].yellowInstrument + ".png height=20 width=20></div>";
+	}
+	else if (data[i].isRed) {
+	    cardColor = "red";
+	    instrument1 = "<div style='position: absolute; bottom: 15px; left: 15px; z-index: 101'><img src=static/instrument_red" + data[i].redInstrument + ".png height=20 width=20></div>";
+	}
+	else if (data[i].isBlue) {
+	    cardColor = "blue";
+	    instrument1 = "<div style='position: absolute; bottom: 15px; left: 15px; z-index: 101'><img src=static/instrument_blue" + data[i].blueInstrument + ".png height=20 width=20></div>";
+	}
+	else if (data[i].isGreen) {
+	    cardColor = "green";
+	    instrument1 = "<div style='position: absolute; bottom: 15px; left: 15px; z-index: 101'><img src=static/instrument_green" + data[i].greenInstrument + ".png height=20 width=20></div>";
+	}
+	else if (data[i].isWhite) {
+	    cardColor = "white";
+	    instrument1 = "<div style='position: absolute; width: 120px; bottom: 15px; left: 15px; z-index: 101; font-family: song; font-size: 8px; color: white'>" + data[i].FXRuleText + "</div>";
+	}
+	var img = "<div style='position: relative; height: 260px; width: 187px; border-radius: 10px; float: left'><div style='position: absolute; top: 13px; left: 12px'><img src=https://sad.hasbro.com/dmx/art/" + data[i].artHash + ".jpg height=175 width=165 alt=\"" + altText + "\" title=\"" + altText + "\" /></div><div style='position: absolute; top: 0px; left: 0px; height: 260px; width: 187px; background-image: url(\"./static/bg_" + cardColor + cardLevel + ".png\"); background-size:contain; z-index:100'></div><div style='position: absolute; bottom: 15px; right: 15px; z-index: 101'><img src=static/logo_" + data[i].playlist + ".png height=20 width=20></div><div style='position: absolute; top: 190px; left: 15px; z-index: 101; color: white; font-size: 10px; text-transform: uppercase; font-family: artist;'>" + data[i].artist + "</div><div style='position: absolute; top: 200px; left: 15px; z-index: 101; color: white; font-size: 8px; text-transform: uppercase; font-family: song;'>" + data[i].song + "</div><div style='position: absolute; bottom: 5px; right: 15px; z-index: 101; color: white; font-family: song; font-size: 8px;'>" + data[i].id + "</div> " + instrument1 + instrument2 + instrument3 + instrument4 + "</div>";
+	//var img = "<img src=https://sad.hasbro.com/1200e194df42fdb4868a9811c626c142ad91b760/" + data[i].cardHash + ".png height=260 width=190 alt=\"" + data[i].artist + " - " + data[i].song + " (" + data[i].playlist + " " + data[i].id + ")\" />";
 	outputHTML += img;
     }
     return outputHTML;
@@ -293,6 +337,8 @@ App.get('/delete-data', function(req, res) {
     input.pipe(deleteparser);
     res.send('deleted data');
 });
+
+App.use('/static', Express.static('static'))
 
 App.get('/', function(req, res) {
     var query = req.query;
@@ -334,7 +380,7 @@ App.get('/', function(req, res) {
 		}
 		else {
 		    var output = getCardImageHTML(data);
-		    res.send(getUI(req) + output + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre>");
+		    res.send(getUI(req) + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre><br/>" + output + "</body>");
 		}
 	    }
 	});
@@ -352,7 +398,7 @@ App.get('/', function(req, res) {
 		}
 		else {
 		    var output = getCardImageHTML(data);
-		    res.send(getUI(req) + output + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre>");
+		    res.send(getUI(req) + "<br/>JSON:<br/><pre>" + JSON.stringify(data) + "</pre><br/>" + output + "</body>");
 		}
 	    }
 	});
