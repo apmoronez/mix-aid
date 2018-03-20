@@ -426,5 +426,3 @@ App.get('/', function(req, res) {
 });
 
 App.listen(process.env.PORT, ()=>console.log('Gomez mix-aid running on port '+process.env.PORT));
-
-// test migration
