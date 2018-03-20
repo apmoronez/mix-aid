@@ -342,6 +342,12 @@ var cardSort = function(a,b) {
     return (a.id < b.id) ? -1 : ((a.id > b.id) ? 1 : 0);
 };
 
+App.use('/static', Express.static('static'))
+App.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", process.env.FRONT_END_SERVER_URL);
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 App.get('/load-data', function(req, res) {
     var input = Fs.createReadStream(__dirname + '/cardlist.csv');
     input.pipe(loadparser);
@@ -353,8 +359,6 @@ App.get('/delete-data', function(req, res) {
     input.pipe(deleteparser);
     res.send('deleted data');
 });
-
-App.use('/static', Express.static('static'))
 
 App.get('/', function(req, res) {
     var query = req.query;
